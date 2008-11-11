@@ -108,7 +108,7 @@
 //	using 0.0.0.0 / :: as default address (autodetermination) [revision 67.]
 //	Fixed use of 0.0.0.0 [revision 78.]
 //	Verified MacOSX support: fully working (scanner and dummy server with SCTP NKE Kernel Extensions), no need for libpcap [revision 78.]
-//	Initial version with libpcap prototype. Does not yet decode the SCTP packets with libpcap.
+//	Initial version with libpcap prototype. Does not yet decode the SCTP packets with libpcap. (Still needs to be done, anyone?)
 
 //
 // BUG:
@@ -122,6 +122,7 @@
 //
 
 // TODO:
+//	Add information gathering on multiple addresses disclosure in case of multihomed target
 //	Add Payload Protocol Identifier adjustment (IUA==1, V5UA==6, )
 //	Add SCTP Tunneling protoccol TCP-port syn scanning
 //	Add libpcap support for *BSD distribution
@@ -1401,6 +1402,7 @@ int dummyserver(int portl)
   
   listen(sd, 10);
   printf("Listening on SCTP port %d\n", listen_port);
+  printf("Note that if kernel supports SCTP sockets (such as provided by SCTPlib), even if this listen in raw socket mode, you may receive ABORT to your INIT packets.");
   
   for(;;)
     {
@@ -1617,6 +1619,7 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, char *hostr, int portr)
       // Connecting...  Associating...
       strncpy((char *)ip_r[0], (const char *)(hostr), SCTP_MAX_IP_LEN - 1);
       con->assocID = sctp_associate(con->instanceID, outstreams, ip_r, portr, ulpDataPtr);
+      // XXXTODO finish connections...
 #else
       fprintf(stderr,"ERROR: No SCTPlib support\n");
       exit(EXIT_FAILURE);      
