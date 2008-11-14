@@ -122,6 +122,10 @@
 //
 
 // TODO:
+//	Add Connection parameter scanning in TCPbridge
+//	Add Abort Cause code in the Abort display message
+//	Add display of INIT/Other packets coming toward us we did not expect (any packet)
+//	Add port-mirror, port-mirror-minus-1, port-mirror-plus-1, 
 //	Add information gathering on multiple addresses disclosure in case of multihomed target
 //	Add Payload Protocol Identifier adjustment (IUA==1, V5UA==6, )
 //	Add SCTP Tunneling protoccol TCP-port syn scanning
@@ -999,6 +1003,8 @@ gchar *collab_http_get_buffer(gchar *url, gchar *hostname, gint port, gchar *pro
 // -------------------- DEFINE'S
 #define HOST_BUF_LEN 256
 #define READBUFSIZE 1024
+#define DEFAULT_SRC_PORT 2905
+#define DEFAULT_DST_PORT 2905
 //XXX Defined for ADSL
 //#define SELECT_TIMEOUT 10000    /* 10000 micro second */
 #define SELECT_TIMEOUT 100
@@ -1522,28 +1528,85 @@ void communicationLostNotif(unsigned int assoc, unsigned short status, void *ulp
 
 void communicationErrorNotif(unsigned int assoc, unsigned short status, void *dummy)
 {
-    printf("Communication error (status %u)\n", status);
+  printf("Communication error on association %x (status %u)\n", assoc, status);
 }
 
 void restartNotif(unsigned int assoc, void *ulpDataPtr)
 {
-    printf("Association restarted\n");
+  printf("Association %x restarted\n", assoc);
 }
 
 void shutdownCompleteNotif(unsigned int assoc, void *ulpDataPtr)
 {
-    printf("Shutdown complete\n");
-    sctp_deleteAssociation(assoc);
-    //noOfInStreams = 0;
-    //noOfOutStreams = 0;
-    //assocID = 0;
-    localAssocID = 0;
+  printf("Shutdown complete on association %x\n", assoc);
+  sctp_deleteAssociation(assoc);
+  //noOfInStreams = 0;
+  //noOfOutStreams = 0;
+  //assocID = 0;
+  localAssocID = 0;
 }
+
+void peerShutdownReceivedNotif(unsigned int assoc, void *ulpDataPtr)
+{
+  printf("Peer shutdown received on association %x\n", assoc);
+  sctp_deleteAssociation(assoc);
+  localAssocID = 0;
+}
+// --- End of handlers
+
+// --- Helper functions
+void sctp_assocDefaultsPrint(struct SCTP_InstanceParameters *params)
+{
+  // blah
+}
+
+
+void sctp_assocStatusPrint(struct SCTP_Association_Status *p)
+{
+  printf("p->state=%d\n", (int)p->state); 
+  printf("p->numberOfAddresses=%d\n",(int)p->numberOfAddresses);
+  // unsigned char  primaryDestinationAddress[SCTP_MAX_IP_LEN];
+  printf("p->sourcePort=%d\n",p->sourcePort);
+  printf("p->destPort=%d\n",p->destPort);
+  printf("p->outStreams=%d\n",p->outStreams);
+  printf("p->inStreams=%d	\n",p->inStreams);
+  printf("p->supportUnreliableStreams=%d	does the assoc support unreliable streams  no==0, yes==1\n",p->supportUnreliableStreams);
+  printf("p->supportADDIP=%d		does the assoc support adding/deleting IP addresses no==0, yes==1\n",p->supportADDIP);
+  printf("p->primaryAddressIndex=%d\n",p->primaryAddressIndex);
+  printf("p->currentReceiverWindowSize=%d\n",p->currentReceiverWindowSize);
+  printf("p->outstandingBytes=%d\n",p->outstandingBytes);
+  printf("p->noOfChunksInSendQueue=%d\n",p->noOfChunksInSendQueue);
+  printf("p->noOfChunksInRetransmissionQueue=%d\n",p->noOfChunksInRetransmissionQueue);
+  printf("p->noOfChunksInReceptionQueue=%d\n",p->noOfChunksInReceptionQueue);
+  printf("p->rtoInitial=%d		the initial round trip timeout\n",p->rtoInitial);
+  printf("p->rtoMin=%d			the minimum RTO timeout\n",p->rtoMin);
+  printf("p->rtoMax=%d			the maximum RTO timeout\n",p->rtoMax);
+  printf("p->validCookieLife=%d		the lifetime of a cookie\n",p->validCookieLife);
+  /** (get/set) maximum retransmissions per association */
+  printf("p->assocMaxRetransmits=%d\n",p->assocMaxRetransmits);
+  /** (get/set) maximum retransmissions per path */
+  printf("p->pathMaxRetransmits=%d\n",p->pathMaxRetransmits);
+  /** (get/set) maximum initial retransmissions */
+  printf("p->maxInitRetransmits=%d\n",p->maxInitRetransmits);
+  /** (get/set) from recvcontrol : my receiver window */
+  printf("p->myRwnd=%d\n",p->myRwnd);
+  /** (get/set) recvcontrol: delay for delayed ACK in msecs */
+  printf("p->delay=%d\n",p->delay);
+  /** (get/set) per instance: for the IP type of service field. */
+  printf("p->ipTos=%d\n",(unsigned char)p->ipTos);
+  /**  limit the number of chunks queued in the send queue */
+  printf("p->maxSendQueue=%d\n",p->maxSendQueue);
+  /** currently unused, may limit the number of chunks queued in the receive queue later.
+   *  Is this really needed ? The protocol limits the receive queue with
+   *  window advertisement of arwnd==0  */
+  printf("p->maxRecvQueue=%d\n",p->maxRecvQueue);
+}
+
 #endif /* HAVE_SCTP_H */
 
 // --- TCP bridge
 
-int TCPtoSCTP(int tcp_port, char *hostl, int portl, char *hostr, int portr)
+int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int portr)
 {
   int tcp_sd, tcp_s, tcp_len;
   socklen_t tcp_addrlen;
@@ -1581,7 +1644,6 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, char *hostr, int portr)
 #ifdef HAVE_SCTP_H
       struct SCTPSock *con;
       unsigned char ip_l[1][SCTP_MAX_IP_LEN];
-      unsigned char ip_r[1][SCTP_MAX_IP_LEN];
       void *ulpDataPtr = NULL;
       int instreams;
       int outstreams;
@@ -1602,7 +1664,7 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, char *hostr, int portr)
       con->uc.communicationErrorNotif = &communicationErrorNotif;
       con->uc.restartNotif = &restartNotif;
       con->uc.shutdownCompleteNotif = &shutdownCompleteNotif;
-      con->uc.peerShutdownReceivedNotif = NULL;
+      con->uc.peerShutdownReceivedNotif = peerShutdownReceivedNotif;
 
       strncpy((char *)ip_l[0], (const char *)(hostl), SCTP_MAX_IP_LEN - 1);
 
@@ -1610,16 +1672,36 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, char *hostr, int portr)
       con->instanceID = sctp_registerInstance(portl, instreams, outstreams, 
 					      1, ip_l, (con->uc));
       if (con->instanceID > 0) {
-	printf("SCTP instance initialized\n");
+	printf("SCTP instance initialized (instanceID=%d)\n", con->instanceID);
       } else {
 	perror("SCTP initalization failed. maybe you need to run it as root?!\n");
       }
       ulpDataPtr = NULL;
 
       // Connecting...  Associating...
-      strncpy((char *)ip_r[0], (const char *)(hostr), SCTP_MAX_IP_LEN - 1);
-      con->assocID = sctp_associate(con->instanceID, outstreams, ip_r, portr, ulpDataPtr);
-      // XXXTODO finish connections...
+      con->assocID = sctp_associate(con->instanceID, outstreams, hostr, portr, ulpDataPtr);
+
+      // Manage SCTP events? (XXX tentative)
+      sctp_eventLoop();
+
+      if (con->assocID > 0)
+	{
+	  SCTP_InstanceParameters params;
+	  int assocDefaultsErrorCode;
+	  SCTP_AssociationStatus status;
+	  int assocStatusErrorCode;
+
+	  printf("We got a SCTP association running! assocID=%d\n", con->assocID);
+
+	  assocDefaultsErrorCode = sctp_getAssocDefaults(con->instanceID, &params);
+	  printf("assocDefaultsErrorCode=%d\n",assocDefaultsErrorCode);
+	  sctp_assocDefaultsPrint(&params);
+
+	  assocStatusErrorCode = sctp_getAssocStatus(con->assocID, &status);
+	  printf("assocStatusErrorCode=%d\n",assocStatusErrorCode);
+	  sctp_assocStatusPrint(&status);
+	}
+
 #else
       fprintf(stderr,"ERROR: No SCTPlib support\n");
       exit(EXIT_FAILURE);      
@@ -1632,8 +1714,29 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, char *hostr, int portr)
     }
   
   // Listen / Accept / Bridge all packets from SCTP to TCP
+  for(;;)
+    {
+      // Accept new TCP client
+      tcp_addrlen = sizeof(tcp_clientaddr);
+      if ((tcp_s = accept(tcp_sd, (struct sockaddr *)&tcp_clientaddr, &tcp_addrlen)) == -1)
+	{
+	  perror("accept");
+	  exit(EXIT_FAILURE);
+	}
+      printf("Connection received...\n");
+      
+      //write(tcp_s, "1234567890", 10); // old code, send SCTP received content.
+      // from TCP to SCTP
+      while((tcp_len = read(tcp_s, tcp_buffer, sizeof(tcp_buffer))) > 0)
+	{
+	  //buffer[len]='\0'; // old code
+	  printf("Content received: %s\n", tcp_buffer);
+	  //write(tcp_s, tcp_buffer, tcp_len); // old code, send 
+	}
+      close(tcp_s);
+    }
+
   // from SCTP to TCP
-  // and from TCP to SCTP
   return(0);
 }
 // --- End of TCP bridge
@@ -3608,7 +3711,7 @@ int main(int argc, char **argv)
   /***************** Reality checks ********************/
   if (app.tcp_bridge_opt)
     {
-      TCPtoSCTP(app.tcp_bridge_opt, hostl, portl, hostr, portr);
+      TCPtoSCTP(app.tcp_bridge_opt, hostl, portl, (unsigned char *)hostr, portr);
       exit(0);
     }
 
