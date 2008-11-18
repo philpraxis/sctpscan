@@ -1566,6 +1566,7 @@ void sctp_assocStatusPrint(struct SCTP_Association_Status *p)
   printf("p->state=%d\n", (int)p->state); 
   printf("p->numberOfAddresses=%d\n",(int)p->numberOfAddresses);
   // unsigned char  primaryDestinationAddress[SCTP_MAX_IP_LEN];
+  printf("p->primaryDestinationAddress=%s	\n",p->primaryDestinationAddress);
   printf("p->sourcePort=%d\n",p->sourcePort);
   printf("p->destPort=%d\n",p->destPort);
   printf("p->outStreams=%d\n",p->outStreams);
@@ -1582,24 +1583,14 @@ void sctp_assocStatusPrint(struct SCTP_Association_Status *p)
   printf("p->rtoMin=%d			the minimum RTO timeout\n",p->rtoMin);
   printf("p->rtoMax=%d			the maximum RTO timeout\n",p->rtoMax);
   printf("p->validCookieLife=%d		the lifetime of a cookie\n",p->validCookieLife);
-  /** (get/set) maximum retransmissions per association */
-  printf("p->assocMaxRetransmits=%d\n",p->assocMaxRetransmits);
-  /** (get/set) maximum retransmissions per path */
-  printf("p->pathMaxRetransmits=%d\n",p->pathMaxRetransmits);
-  /** (get/set) maximum initial retransmissions */
-  printf("p->maxInitRetransmits=%d\n",p->maxInitRetransmits);
-  /** (get/set) from recvcontrol : my receiver window */
-  printf("p->myRwnd=%d\n",p->myRwnd);
-  /** (get/set) recvcontrol: delay for delayed ACK in msecs */
-  printf("p->delay=%d\n",p->delay);
-  /** (get/set) per instance: for the IP type of service field. */
-  printf("p->ipTos=%d\n",(unsigned char)p->ipTos);
-  /**  limit the number of chunks queued in the send queue */
-  printf("p->maxSendQueue=%d\n",p->maxSendQueue);
-  /** currently unused, may limit the number of chunks queued in the receive queue later.
-   *  Is this really needed ? The protocol limits the receive queue with
-   *  window advertisement of arwnd==0  */
-  printf("p->maxRecvQueue=%d\n",p->maxRecvQueue);
+  printf("p->assocMaxRetransmits=%d	maximum retransmissions per association\n",p->assocMaxRetransmits);
+  printf("p->pathMaxRetransmits=%d	maximum retransmissions per path\n",p->pathMaxRetransmits);
+  printf("p->maxInitRetransmits=%d	maximum initial retransmissions\n",p->maxInitRetransmits);
+  printf("p->myRwnd=%d			from recvcontrol : my receiver window\n",p->myRwnd);
+  printf("p->delay=%d			recvcontrol: delay for delayed ACK in msecs\n",p->delay);
+  printf("p->ipTos=%d			per instance: for the IP type of service field.\n",(unsigned char)p->ipTos);
+  printf("p->maxSendQueue=%d		limit the number of chunks queued in the send queue\n",p->maxSendQueue);
+  printf("p->maxRecvQueue=%d		currently unused, may limit the number of chunks queued in the receive queue later. Is this really needed ? The protocol limits the receive queue with window advertisement of arwnd==0\n",p->maxRecvQueue);
 }
 
 #endif /* HAVE_SCTP_H */
