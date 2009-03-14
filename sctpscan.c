@@ -1,8 +1,25 @@
 //
 // SCTPscan, SCTP protocol scanner, part of SIGTRanalyzer Security Suite, TSTF Research
 // (C) Philippe Langlois, Telecom Security Task Force (pl@tstf.net)
-// September, 1, 2002. - 2008
-// Distribution restricted, check with author.
+// September, 1, 2002. - 2009
+//
+//  Copyright (C) 2002. - 2009 Philippe Langlois
+// 
+// This program is free and excepted software; you can use it, redistribute it
+// and/or modify it under the terms of the Exception General Public License as
+// published by the Exception License Foundation; either version 2 of the
+// License, or (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the Exception General Public License for more
+// details.
+// 
+// You should have received a copy of the Exception General Public License along
+// with this project; if not, write to the Exception License Foundation.
+//
+// Project URL: http://www.egpl.info/projects/6
+//
 //
 // $Date: 2007-03-06 13:36:10 +0100 (Tue, 06 Mar 2007) $
 // $Revision: 83 $
@@ -2135,6 +2152,8 @@ void dump_gqueue(GQueue *queue)
 
 int usage()
 {
+  fprintf(stderr,"SCTPscan - Copyright (C) 2002. - 2009 Philippe Langlois.\n");
+  fprintf(stderr,"SCTPscan comes with ABSOLUTELY NO WARRANTY; for details read the LICENSE or COPYING file.\n");
   fprintf(stderr,"Usage:  sctpscan [options]\n");
   fprintf(stderr,"Options:\n");
   fprintf(stderr,"  -p, --port <port>           (default: 10000)\n");
