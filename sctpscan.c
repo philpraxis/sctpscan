@@ -1276,14 +1276,23 @@ int sctp_ports[] = { 1,
 		     1167,	// cisco-ipsla - Cisco IP SLAs Control Protocol
 		     1812,	// radius
 		     2097,
+		     2000,	// Huawei UMG8900 MGW H248 port
+		     2001,	// Huawei UMG8900 MGW H248 port
+		     2010,	// Huawei UMG8900 MGW H248 port
+		     2011,	// Huawei UMG8900 MGW H248 port
+		     2020,	// Huawei UMG8900 MGW H248 port
+		     2021,	// Huawei UMG8900 MGW H248 port
+		     2100,	// Huawei UMG8900 MGW H248 port
+		     2110,	// Huawei UMG8900 MGW H248 port
+		     2120,	// Huawei UMG8900 MGW H248 port
 		     2225, 	// rcip-itu -- Resource Connection Initiation Protocol
 		     2427,	// mgcp-gateway - MGCP and SGCP -- http://en.wikipedia.org/wiki/Media_Gateway_Control_Protocol
 		     2477,
 		     2577,	// Test configuration for Cisco AS5400 products (SCTP/IUQ/Q931)
-		     2904,	// m2ua -- http://www.pt.com/tutorials/iptelephony/tutorial_voip_mtp.html , then mtp2, mtp3, sccp
+		     2904,	// m2ua -- http://www.pt.com/tutorials/iptelephony/tutorial_voip_mtp.html , then mtp2, mtp3, sccp  (default for Huawei UMG8900 MGW)
 		     2905,	// m3ua -- http://www.ietf.org/rfc/rfc3332.txt - http://www.hssworld.com/voip/stacks/sigtran/Sigtran_M3UA/overview.htm
 		     2944,	// megaco-h248 - Megaco-H.248 text
-		     2945,	// h248-binary - Megaco/H.248 binary
+		     2945,	// h248-binary - Megaco/H.248 binary (default for Huawei UMG8900 MGW)
 		     3097,	// ITU-T Q.1902.1/Q.2150.3
 		     3565,	// m2pa -- http://rfc.archivesat.com/rfc4166.htm
 		     3740,	// ayiya -- http://unfix.org/~jeroen/archive/drafts/draft-massar-v6ops-ayiya-01.txt
@@ -1300,6 +1309,16 @@ int sctp_ports[] = { 1,
 		     5672,	// AMQP
 		     5675,	// v5ua,  V5UA (V5.2-User Adaptation) Layer -- http://rfc.archivesat.com/rfc4166.htm
 		     6000,
+		     6100,	// Huawei UMG8900 MGW config
+		     6110,	// Huawei UMG8900 MGW config
+		     6120,	// Huawei UMG8900 MGW config
+		     6130,	// Huawei UMG8900 MGW config
+		     6140,	// Huawei UMG8900 MGW config
+		     6150,	// Huawei UMG8900 MGW config
+		     6160,	// Huawei UMG8900 MGW config
+		     6170,	// Huawei UMG8900 MGW config
+		     6180,	// Huawei UMG8900 MGW config
+		     6190,	// Huawei UMG8900 MGW config
 		     6789,	// iua test port for some CISCO default configurations
 		     6790,	// iua test port for some CISCO default configurations
 		     7000,	// MTP3 / BICC
@@ -1315,7 +1334,7 @@ int sctp_ports[] = { 1,
 		     9006,	// tunneling?
 		     9899,	// sctp-tunneling, actually is usually tcp/udp based
 		     9911,	// iua test port for some CISCO default configurations
-		     9900,	// iua, ISDN Q.921 User Adaptation -- http://rfc.archivesat.com/rfc4166.htm
+		     9900,	// iua, ISDN Q.921 User Adaptation -- http://rfc.archivesat.com/rfc4166.htm  (default for Huawei UMG8900 MGW)
 		     9901,	// enrp-sctp - enrp server channel
 		     9902, 	// enrp-sctp-tls - enrp/tls server channel 
 		     10000,
