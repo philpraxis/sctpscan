@@ -1737,7 +1737,10 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int po
       con->assocID = sctp_associate(con->instanceID, outstreams, hostr, portr, ulpDataPtr);
 
       // Manage SCTP events? (XXX tentative)
-      sctp_eventLoop();
+      while(1)
+	{
+	  sctp_eventLoop();
+	}
 
       if (con->assocID > 0)
 	{
