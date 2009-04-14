@@ -1173,7 +1173,7 @@ struct app_s
   int compact_opt;
   int zombie_opt;			// Does not contribute reports to collaboration platform. No reporting. (feat 105)
   char *exec_on_port_opt;		// Execution of external command on new SCTP port (--exec / -E) (feat 109)
-  int tcp_bridge_opt;			// Execution of external command on new SCTP port (--exec / -E) (feat 109)
+  int tcp_bridge_opt;			// TCP to SCTP bridge
   
   // Runtime Datas
 #ifdef __G_LIB_H__
@@ -1191,6 +1191,10 @@ struct app_s
   int select_timeout_sec;
   int select_timeout_usec;
   int listen_retries;
+
+  // Streams information
+  int init_outstreams;
+  int init_instreams;
 
   // Last Fuzz infos
   char fuzzcase_name[255];
@@ -1572,9 +1576,33 @@ void peerShutdownReceivedNotif(unsigned int assoc, void *ulpDataPtr)
 // --- End of handlers
 
 // --- Helper functions
-void sctp_assocDefaultsPrint(struct SCTP_InstanceParameters *params)
+void sctp_assocDefaultsPrint(struct SCTP_Instance_Parameters *params)
 {
-  // blah
+  int idx;
+
+  idx = 0;
+  printf("* read-only (get):   noOfLocalAddresses=%d\n", params->   noOfLocalAddresses);
+  for(idx = 0; idx < params->   noOfLocalAddresses; idx++)
+    {
+      printf("* read-only (get):  localAddressList[%d][]=%s\n", idx, params->localAddressList[idx]);
+    }
+  printf("* initial round trip timeout: rtoInitial=%d\n", params-> rtoInitial);
+  printf("* minimum timeout value: rtoMin=%d\n", params-> rtoMin);
+  printf("* maximum timeout value: rtoMax=%d\n", params-> rtoMax);
+  printf("* lifetime of a cookie: validCookieLife=%d\n", params-> validCookieLife);
+  printf("*  (get/set):   outStreams=%d\n", params->   outStreams);
+  printf("*  (get/set):   inStreams=%d\n", params->   inStreams);
+  printf("* does the instance by default signal unreliable streams (as a server) no==0, yes==1: supportUnreliableStreams=%d\n", params-> supportUnreliableStreams);
+  printf("* does the instance by default signal unreliable streams (as a server) no==0, yes==1: supportADDIP=%d\n", params-> supportADDIP);
+  printf("* maximum retransmissions per association: assocMaxRetransmits=%d\n", params-> assocMaxRetransmits);
+  printf("* maximum retransmissions per path: pathMaxRetransmits=%d\n", params-> pathMaxRetransmits);
+  printf("* maximum initial retransmissions: maxInitRetransmits=%d\n", params-> maxInitRetransmits);
+  printf("* from recvcontrol : my receiver window: myRwnd=%d\n", params-> myRwnd);
+  printf("* recvcontrol: delay for delayed ACK in msecs: delay=%d\n", params-> delay);
+  printf("* per instance: for the IP type of service field.: ipTos=%d\n", params-> ipTos);
+  printf("* limit the number of chunks queued in the send queue: maxSendQueue=%d\n", params-> maxSendQueue);
+  printf("* currently unused, may limit the number of chunks queued in the receive queue later.  Is this really needed ? The protocol limits the receive queue with window advertisement of arwnd==0 : maxRecvQueue=%d\n", params-> maxRecvQueue);
+  printf("* maximum number of associations we want. Is this limit greater than 0, implementation will automatically send ABORTs to incoming INITs, when there are that many associations ! : maxNumberOfAssociations=%d\n", params-> maxNumberOfAssociations);
 }
 
 
@@ -1614,7 +1642,7 @@ void sctp_assocStatusPrint(struct SCTP_Association_Status *p)
 
 // --- TCP bridge
 
-int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int portr)
+int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int portr, int inoutstreams)
 {
   int tcp_sd, tcp_s, tcp_len;
   socklen_t tcp_addrlen;
@@ -1676,9 +1704,9 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int po
 
       strncpy((char *)ip_l[0], (const char *)(hostl), SCTP_MAX_IP_LEN - 1);
 
-      instreams = outstreams = 1;
+      instreams = outstreams = inoutstreams;
       con->instanceID = sctp_registerInstance(portl, instreams, outstreams, 
-					      1, ip_l, (con->uc));
+					      1 /* =noOfLocalAddresses */, ip_l, (con->uc));
       if (con->instanceID > 0) {
 	printf("SCTP instance initialized (instanceID=%d)\n", con->instanceID);
       } else {
@@ -2200,6 +2228,8 @@ int usage()
   fprintf(stderr,"      Execution arguments: <script_name> host_ip sctp_port\n");
   fprintf(stderr,"  -t  --tcpbridge <listen TCP port>\n"); // 
   fprintf(stderr,"      Bridges all connection from <listen TCP port> to remote designated SCTP port.\n");
+  fprintf(stderr,"  -S  --streams <number of streams>\n"); // 
+  fprintf(stderr,"      Tries to establish SCTP association with the specified <number of streams> to remote designated SCTP destination.\n");
   //  fprintf(stderr,"  -R  --randomscan\n");
   //  fprintf(stderr,"      Randomly scan class C networks forever\n");
   fprintf(stderr,"\n");
@@ -3484,6 +3514,8 @@ int main(int argc, char **argv)
   app.zombie_opt = 0; // Collaborative reporting by default (feat 105)
   app.exec_on_port_opt = NULL;
   app.tcp_bridge_opt = 0;
+  app.init_outstreams = 1;
+  app.init_instreams = 1;
   app.sctpscan_version = 12;
   app.select_timeout_usec = SELECT_TIMEOUT;
   app.select_timeout_sec = 0;
@@ -3547,9 +3579,10 @@ int main(int argc, char **argv)
 	  {   "zombie",		    0, 0, 'Z' },
 	  {   "dummyserver",	    0, 0, 'd' },
 	  {   "exec",		    1, 0, 'E' },
-	  {   "tcpbridge",	    1, 0, 't' }
+	  {   "tcpbridge",	    1, 0, 't' },
+	  {   "streams",	    1, 0, 'S' }
 	};
-      c = getopt_long(argc,argv,"l:r:shp:P:mACfbFaiBcZdE:t:",long_options,&option_index);
+      c = getopt_long(argc,argv,"l:r:shp:P:mACfbFaiBcZdE:t:S:",long_options,&option_index);
       if ( c == -1 )
 	break;
       switch ( c ) 
@@ -3619,7 +3652,10 @@ int main(int argc, char **argv)
 	    case 18: /* Execution of external command on new SCTP port discovery (--exec / -E) (feat 109) */
 	      app.exec_on_port_opt = strdup(optarg);
 	      break;
-	    case 19: /* TCP bridge to SCTP (--tcpbridge / -t) */
+	    case 19: /* TCP to SCTP bridge (--tcpbridge / -t) */
+	      app.tcp_bridge_opt = atoi(optarg);
+	      break;
+	    case 20: /* Number of SCTP streams */
 	      app.tcp_bridge_opt = atoi(optarg);
 	      break;
 	    default:
@@ -3693,6 +3729,9 @@ int main(int argc, char **argv)
 	case 't': /* TCP bridge to SCTP (--tcpbridge / -t) */
 	  app.tcp_bridge_opt = atoi(optarg);
 	  break;
+	case 'S': /* Number of SCTP streams */
+	  app.init_instreams = app.init_outstreams = atoi(optarg);
+	  break;
 	default:
 	  fprintf(stderr,"ERROR: Unrecognized option '%c'.\n",c);
 	  usage();
@@ -3718,10 +3757,10 @@ int main(int argc, char **argv)
     }
 
 
-  /***************** Reality checks ********************/
+  /***************** TCP Bridge ********************/
   if (app.tcp_bridge_opt)
     {
-      TCPtoSCTP(app.tcp_bridge_opt, hostl, portl, (unsigned char *)hostr, portr);
+      TCPtoSCTP(app.tcp_bridge_opt, hostl, portl, (unsigned char *)hostr, portr, app.init_instreams);
       exit(0);
     }
 
