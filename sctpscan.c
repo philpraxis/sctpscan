@@ -1241,12 +1241,13 @@ int sctp_ports[] = { 1,
 	             7626,	// simco - SImple Middlebox COnfiguration (SIMCO)
 		     7701,	// found in the wild
 		     7800,	// found in the wild
+		     8000,	// found in the wild, MTP3 / BICC
 		     8001,	// found in the wild
 		     8787,	// iua test port for some CISCO default configurations
 		     9006,	// tunneling?
 		     9899,	// sctp-tunneling, actually is usually tcp/udp based
 		     9911,	// iua test port for some CISCO default configurations
-		     9900,	// iua, ISDN Q.921 User Adaptation -- http://rfc.archivesat.com/rfc4166.htm  (default for Huawei UMG8900 MGW)
+		     9900,	// sua (SCCP User Adaptation layer) or iua (ISDN Q.921 User Adaptation -- http://rfc.archivesat.com/rfc4166.htm)  (default for Huawei UMG8900 MGW)
 		     9901,	// enrp-sctp - enrp server channel
 		     9902, 	// enrp-sctp-tls - enrp/tls server channel 
 		     10000,
