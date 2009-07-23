@@ -1573,7 +1573,13 @@ void sctp_assocStatusPrint(struct SCTP_Association_Status *p)
 #endif /* HAVE_SCTP_H */
 
 // --- TCP bridge
-
+// 
+// Problems when testing client and server on the same host with SCTPlib.
+// No problem when testing client and server on two different hosts:
+// Linux machine running SCTPlib chargen_server:
+// linux13# ./chargen_server -V
+// MacOSX10.4-12# ./sctpscan -r 192.168.1.13 -p 19 -t 12346
+// 
 int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int portr, int inoutstreams)
 {
   int tcp_sd, tcp_s, tcp_len;
