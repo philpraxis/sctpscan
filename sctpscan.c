@@ -1181,10 +1181,18 @@ typedef struct app_s app_t;
 
 // GLOBALS
 int sctp_ports[] = { 1,
+		     7,		// echo
+		     9,		// discard
+		     20,	// ftp-data
+		     21,	// ftp
+		     22,	// ssh
+		     80,	// http
 		     100,
 		     128,
+		     179,	// bgp
 		     260,
 		     250,
+		     443,	// https
 		     1167,	// cisco-ipsla - Cisco IP SLAs Control Protocol
 		     1812,	// radius
 		     2097,
@@ -1203,6 +1211,10 @@ int sctp_ports[] = { 1,
 		     2577,	// Test configuration for Cisco AS5400 products (SCTP/IUQ/Q931)
 		     2904,	// m2ua -- http://www.pt.com/tutorials/iptelephony/tutorial_voip_mtp.html , then mtp2, mtp3, sccp  (default for Huawei UMG8900 MGW)
 		     2905,	// m3ua -- http://www.ietf.org/rfc/rfc3332.txt - http://www.hssworld.com/voip/stacks/sigtran/Sigtran_M3UA/overview.htm
+		     2906,	// m3ua -- py sms m3ua default ports
+		     2907,	// m3ua -- py sms m3ua default ports
+		     2908,	// m3ua -- py sms m3ua default ports
+		     2909,	// m3ua -- py sms m3ua default ports
 		     2944,	// megaco-h248 - Megaco-H.248 text
 		     2945,	// h248-binary - Megaco/H.248 binary (default for Huawei UMG8900 MGW)
 		     3097,	// ITU-T Q.1902.1/Q.2150.3
@@ -1243,9 +1255,11 @@ int sctp_ports[] = { 1,
 		     7800,	// found in the wild
 		     8000,	// found in the wild, MTP3 / BICC
 		     8001,	// found in the wild
+		     8471,	// pim-port PIM over Reliable Transport
 		     8787,	// iua test port for some CISCO default configurations
 		     9006,	// tunneling?
-		     9899,	// sctp-tunneling, actually is usually tcp/udp based
+		     9084,	// IBM AURORA Performance Visualizer
+		     9899,	// sctp-tunneling, actually is usually tcp/udp based but could come from human error
 		     9911,	// iua test port for some CISCO default configurations
 		     9900,	// sua (SCCP User Adaptation layer) or iua (ISDN Q.921 User Adaptation -- http://rfc.archivesat.com/rfc4166.htm)  (default for Huawei UMG8900 MGW)
 		     9901,	// enrp-sctp - enrp server channel
@@ -1259,6 +1273,7 @@ int sctp_ports[] = { 1,
 		     12205,	// Local port for SUA, Cisco BTS uses for FSAIN communication is usually 12205,
 		     12235,	// Local port for SUA, Cisco BTS usage for FSPTC
 		     14001,	// sua, SUA (SS7 SCCP User Adaptation) Layer -- http://rfc.archivesat.com/rfc4166.htm
+		     20049,	// nfsrdma Network File System (NFS) over RDMA
 		     30000,
 		     32931,
 		     32768,
