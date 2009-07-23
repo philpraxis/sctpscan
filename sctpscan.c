@@ -1,9 +1,9 @@
 //
 // SCTPscan, SCTP protocol scanner, part of SIGTRanalyzer Security Suite, TSTF Research
 // (C) Philippe Langlois, Telecom Security Task Force (pl@tstf.net)
-// September, 1, 2002. - 2009
+// September, 1, 2002 - 2009
 //
-//  Copyright (C) 2002. - 2009 Philippe Langlois
+//  Copyright (C) 2002 - 2009 Philippe Langlois
 // 
 // This program is free and excepted software; you can use it, redistribute it
 // and/or modify it under the terms of the Exception General Public License as
@@ -37,7 +37,7 @@
 // Compile Problems:
 // Q: I get tons of errors when compiling... unknown reference to .h files
 // A: You are missing some files. Maybe you should do something like:
-//    this on Debian: apt-get install libglib2.0-dev libc6-dev
+//    this on Debian/Ubuntu: apt-get install libglib2.0-dev libc6-dev
 //    this on MacOSX/Darwin: fink install glib2-dev
 //    On some bare bone systems, you don't have these packages/files and it's required to compile SCTPscan
 //
@@ -2115,7 +2115,7 @@ void dump_gqueue(GQueue *queue)
 
 int usage()
 {
-  fprintf(stderr,"SCTPscan - Copyright (C) 2002. - 2009 Philippe Langlois.\n");
+  fprintf(stderr,"SCTPscan - Copyright (C) 2002 - 2009 Philippe Langlois.\n");
   fprintf(stderr,"SCTPscan comes with ABSOLUTELY NO WARRANTY; for details read the LICENSE or COPYING file.\n");
   fprintf(stderr,"Usage:  sctpscan [options]\n");
   fprintf(stderr,"Options:\n");
@@ -3488,6 +3488,8 @@ int main(int argc, char **argv)
   init_sctp_identifier();
 
   if (argc < 2) {usage(); close(s); exit(1);}
+
+  fprintf(stderr,"SCTPscan - Copyright (C) 2002 - 2009 Philippe Langlois.\n");
 
   time_start = time(NULL);
   while (1) 
