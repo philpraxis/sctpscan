@@ -139,11 +139,11 @@
 //
 
 // TODO:
+//	Add port-mirror, port-mirror-minus-1, port-mirror-plus-1, -M 0<default>,1,2,... : tries to mirror port, or to mirror 1 port above or below, ...
 //	Test SCTPlib examples programs
 //	Add Connection parameter scanning in TCPbridge
 //	Add Abort Cause code in the Abort display message
 //	Add display of INIT/Other packets coming toward us we did not expect (any packet)
-//	Add port-mirror, port-mirror-minus-1, port-mirror-plus-1, 
 //	Add information gathering on multiple addresses disclosure in case of multihomed target
 //	Add Payload Protocol Identifier adjustment (IUA==1, V5UA==6, )
 //	Add SCTP Tunneling protoccol TCP-port syn scanning
@@ -1211,18 +1211,20 @@ int sctp_ports[] = { 1,
 		     2577,	// Test configuration for Cisco AS5400 products (SCTP/IUQ/Q931)
 		     2904,	// m2ua -- http://www.pt.com/tutorials/iptelephony/tutorial_voip_mtp.html , then mtp2, mtp3, sccp  (default for Huawei UMG8900 MGW)
 		     2905,	// m3ua -- http://www.ietf.org/rfc/rfc3332.txt - http://www.hssworld.com/voip/stacks/sigtran/Sigtran_M3UA/overview.htm
-		     2906,	// m3ua -- py sms m3ua default ports
+		     2906,	// m3ua common config port
 		     2907,	// m3ua -- py sms m3ua default ports
 		     2908,	// m3ua -- py sms m3ua default ports
-		     2909,	// m3ua -- py sms m3ua default ports
+		     2909,	// m3ua common config port
 		     2944,	// megaco-h248 - Megaco-H.248 text
 		     2945,	// h248-binary - Megaco/H.248 binary (default for Huawei UMG8900 MGW)
+		     3000,	// m3ua common port
 		     3097,	// ITU-T Q.1902.1/Q.2150.3
 		     3565,	// m2pa -- http://rfc.archivesat.com/rfc4166.htm
 		     3740,	// ayiya -- http://unfix.org/~jeroen/archive/drafts/draft-massar-v6ops-ayiya-01.txt
 		     3863,	// RSerPool's ASAP protocol -- http://tdrwww.iem.uni-due.de/dreibholz/rserpool/
 		     3864,	// RSerPool's ENRP protocol (asap-sctp/tls) -- http://tdrwww.iem.uni-due.de/dreibholz/rserpool/
 		     3868,	// Diameter
+		     4000,	// m3ua common port
 		     4739,	// IPFIX (IP Flow Info Export) default port -- http://tools.ietf.org/wg/ipfix/
 		     5000,
 		     5001,
@@ -1246,6 +1248,7 @@ int sctp_ports[] = { 1,
 		     6789,	// iua test port for some CISCO default configurations
 		     6790,	// iua test port for some CISCO default configurations
 		     7000,	// MTP3 / BICC
+		     7001,	// Common M3UA port
 		     7102,	// found in the wild
 		     7103,	// found in the wild
 		     7105,	// found in the wild
@@ -1272,9 +1275,13 @@ int sctp_ports[] = { 1,
 		     11999,	// wmereporting - WorldMailExpress 
 		     12205,	// Local port for SUA, Cisco BTS uses for FSAIN communication is usually 12205,
 		     12235,	// Local port for SUA, Cisco BTS usage for FSPTC
-		     14001,	// sua, SUA (SS7 SCCP User Adaptation) Layer -- http://rfc.archivesat.com/rfc4166.htm
+		     13000,	// m3ua -- py sms m3ua default ports
+		     13001,	// m3ua -- py sms m3ua default ports
+		     14000,	// m3ua common port, m2pa sometimes too
+		     14001,	// sua, SUA (SS7 SCCP User Adaptation) Layer -- http://rfc.archivesat.com/rfc4166.htm , m3ua sometimes too
 		     20049,	// nfsrdma Network File System (NFS) over RDMA
 		     30000,
+		     32905,	// m3ua common port
 		     32931,
 		     32768,
 		     0}; // Frequently used SCTP Ports
@@ -3139,11 +3146,11 @@ int send_sctp (int s, char *hostl, char *hostr, short portl, short portr, struct
       if (retcode == RETCODE_HOST_OR_NET_REJECT_SCTP || retcode)
 	return(retcode);
 
-      packet_type = SH_INIT;
+      packet_type = SH_INIT; // XXX Refactor here...
       return(send_sctp_packet(s, hostl, hostr, portl, portr, app, packet_type));
     }
   else
-    return(send_sctp_packet(s, hostl, hostr, portl, portr, app, SH_INIT));
+    return(send_sctp_packet(s, hostl, hostr, portl, portr, app, SH_INIT)); // XXX Refactor here...
 }
 
 // portscan SCTP ports on a machine
