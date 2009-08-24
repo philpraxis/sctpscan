@@ -1226,6 +1226,7 @@ int sctp_ports[] = { 1,
 		     3868,	// Diameter
 		     4000,	// m3ua common port
 		     4739,	// IPFIX (IP Flow Info Export) default port -- http://tools.ietf.org/wg/ipfix/
+		     4740,	// IPFIX (IP Flow Info Export) over DTLS default port -- http://tools.ietf.org/wg/ipfix/
 		     5000,
 		     5001,
 		     5060,	// SIP - Session Initiation Protocol
@@ -1245,6 +1246,9 @@ int sctp_ports[] = { 1,
 		     6170,	// Huawei UMG8900 MGW config
 		     6180,	// Huawei UMG8900 MGW config
 		     6190,	// Huawei UMG8900 MGW config
+		     6700,	// SCTP based TML (Transport Mapping Layer) for ForCES protocol -- http://www.ietf.org/id/draft-ietf-forces-sctptml-05.txt
+		     6701,	// SCTP based TML (Transport Mapping Layer) for ForCES protocol -- http://www.ietf.org/id/draft-ietf-forces-sctptml-05.txt
+		     6702,	// SCTP based TML (Transport Mapping Layer) for ForCES protocol -- http://www.ietf.org/id/draft-ietf-forces-sctptml-05.txt
 		     6789,	// iua test port for some CISCO default configurations
 		     6790,	// iua test port for some CISCO default configurations
 		     7000,	// MTP3 / BICC
@@ -1280,6 +1284,8 @@ int sctp_ports[] = { 1,
 		     14000,	// m3ua common port, m2pa sometimes too
 		     14001,	// sua, SUA (SS7 SCCP User Adaptation) Layer -- http://rfc.archivesat.com/rfc4166.htm , m3ua sometimes too
 		     20049,	// nfsrdma Network File System (NFS) over RDMA
+		     29118,	// SGsAP in 3GPP
+		     29168,	// SBcAP in 3GPP, [TS 29.168][Kymalainen]           2009-08-20
 		     30000,
 		     32905,	// m3ua common port
 		     32931,
