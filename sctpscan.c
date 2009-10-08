@@ -1246,6 +1246,7 @@ int sctp_ports[] = { 1,
 		     6170,	// Huawei UMG8900 MGW config
 		     6180,	// Huawei UMG8900 MGW config
 		     6190,	// Huawei UMG8900 MGW config
+		     6529,	// Non standard V5 & IUA port -- from port 6005
 		     6700,	// SCTP based TML (Transport Mapping Layer) for ForCES protocol -- http://www.ietf.org/id/draft-ietf-forces-sctptml-05.txt
 		     6701,	// SCTP based TML (Transport Mapping Layer) for ForCES protocol -- http://www.ietf.org/id/draft-ietf-forces-sctptml-05.txt
 		     6702,	// SCTP based TML (Transport Mapping Layer) for ForCES protocol -- http://www.ietf.org/id/draft-ietf-forces-sctptml-05.txt
@@ -1414,12 +1415,6 @@ int dummyserver(int portl)
 
 // ------------------------ TCP Bridge to SCTP sockets ------------------------
 
-struct SCTPSock {
-    int instanceID;
-    int assocID;
-    SCTP_ulpCallbacks uc;
-};
-
 #define MAX_PAYLOAD_LENGTH 1024
 #define MAX_IP_LEN 256
 
@@ -1427,6 +1422,12 @@ static int localAssocID = 0;
 
 // --- Notif handlers / callbacks
 #ifdef HAVE_SCTP_H
+struct SCTPSock {
+    int instanceID;
+    int assocID;
+    SCTP_ulpCallbacks uc;
+};
+
 void dataArriveNotif(unsigned int assoc, unsigned short stream, unsigned int len,
                      unsigned short streamSN,unsigned int TSN, unsigned int protoID,
                      unsigned int unordered, void* ulpDataPtr)
