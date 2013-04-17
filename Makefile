@@ -18,4 +18,4 @@ clean:
 	rm -f pcap_sctp sctpscan fake-m3ua
 
 tgz:
-	tar zcvf sctpscan.tar.gz sctpscan.c LICENSE README COPYING EXCEPTIONS Makefile
+	tar zcvf sctpscan.tar.gz sctpscan.c LICENSE README COPYING Makefile
