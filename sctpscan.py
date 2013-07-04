@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import sys
 import sctp
 import socket
 import binascii
+from IPy import IP
 
 import ports
 
 def bind_socket(soc, port):
     while True:
         try:
-            soc.bind(('127.0.0.2', port))
+            soc.bind(('0.0.0.0', port))
         except socket.error, e:
             if port == ports.default_port:
                 raise e
@@ -19,19 +21,29 @@ def bind_socket(soc, port):
             continue
         break
 
-for port in ports.sctp_ports:
+def main(iprange):
 
-    # print port
-    soc = sctp.sctpsocket_tcp(socket.AF_INET)
+    for ip in IP(iprange):
+        for port in ports.sctp_ports:
 
-    try:
-        bind_socket(soc, port)
-    except socket.error, e:
-        print e
+            soc = sctp.sctpsocket_tcp(socket.AF_INET)
 
-    try:
-        soc.connect(('127.0.0.1', port))
-        print 'SCTP Port Open: %s' % port
-    except socket.error, e:
-        pass
-    soc.close()
+            if ip.strNormal().split('.')[0] != '127':
+                # Enable port mirroring for remote hosts
+                try:
+                    bind_socket(soc, port)
+                except socket.error, e:
+                    print e
+
+            try:
+                soc.connect((ip.strNormal(), port))
+                print 'SCTP Port Open: %s' % port
+            except socket.error, e:
+                pass
+            soc.close()
+
+if __name__ == '__main__':
+    if not len(sys.argv) == 2:
+        print 'usage %s: IP' % sys.argv[0]
+        exit(1)
+    main(sys.argv[1])
