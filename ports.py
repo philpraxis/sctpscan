@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+default_port = 10000
+
 # a list of often used SCTP ports
 
 sctp_ports = [1,
