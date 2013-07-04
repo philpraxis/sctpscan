@@ -1029,6 +1029,8 @@ struct vlparam
 #define VLPARAM_IPV4 htons(0x0005)
 #define VLPARAM_COOKIE htons(0x0009)
 #define VLPARAM_ADDRTYPE htons(0x000C)
+#define VLPARAM_ECN htons(0x8000)
+#define VLPARAM_FWD_TSN htons(0xc000)
 
 struct vlparam_ip
 {
@@ -1049,6 +1051,20 @@ struct vlparam_supported_addrtype
   unsigned short int	type;
   unsigned short int	length;
   unsigned short int	addrtype; // 0x0005 for ipv4
+};
+
+struct vlparam_ecn_parameter
+{
+  unsigned short int	type;
+  unsigned short int	length;
+  // follows payload which length is above
+};
+
+struct vlparam_fwd_tsn
+{
+  unsigned short int	type;
+  unsigned short int	length;
+  // follows payload which length is above
 };
 
 // -------------------- PROGRAM SPECIFIC
@@ -2684,6 +2700,8 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
   struct vlparam_ip *vlip3;
   struct vlparam_cookie *vlcookie;
   struct vlparam_supported_addrtype *vladdrtype;
+  struct vlparam_ecn_parameter *vlecnparam;
+  struct vlparam_fwd_tsn *vlfwdtsn;
 
   struct sockaddr_in sin;
   /* the sockaddr_in containing the dest. address is used
@@ -2904,7 +2922,7 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
 	  break;
 	case 0:
 	default:
-	  c_init->a_rwnd = htonl(32768);
+	  c_init->a_rwnd = htonl(106496);
 	  //strcpy(app->fuzzcase_name, "a_rwnd = 32 768 (default)");
 	  break;
 	}
@@ -2922,7 +2940,7 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
 	  break;
 	case 0:
 	default:
-	  c_init->outstreams = htons(2);
+	  c_init->outstreams = htons(10);
 	  //strcpy(app->fuzzcase_name, "outstreams = 2");
 	  break;
 	}
@@ -2940,7 +2958,7 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
 	  break;
 	case 0:
 	default:
-	  c_init->instreams = htons(2);
+	  c_init->instreams = htons(65535);
 	  //strcpy(app->fuzzcase_name, "instreams = 2 (default)");
 	  break;
 	}
@@ -2972,7 +2990,7 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
       psize = sizeof (struct chunk_init);
       pptr = (char *) ((char *)c_init + sizeof(struct chunk_init));
 
-      if (0) // NOT MANDATORY
+      if (1) // NOT MANDATORY
 	{
 	  //vlip1 = (struct vlparam_ip *) ((char *)c_init + sizeof(struct chunk_init));
 	  vlip1 = (struct vlparam_ip *) pptr;
@@ -2983,24 +3001,24 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
 	  psize += sizeof(struct vlparam_ip);
 	}
 
-      if (0) // NOT MANDATORY
+      if (1) // NOT MANDATORY
 	{
 	  //vlip2 = (struct vlparam_ip *) ((char *)vlip1 + sizeof(struct vlparam_ip));
 	  vlip2 = (struct vlparam_ip *) pptr;
 	  vlip2->type = VLPARAM_IPV4;
 	  vlip2->length = htons(sizeof(struct vlparam_ip));
-	  vlip2->ipaddr = inet_addr ("127.0.0.1");
+	  vlip2->ipaddr = inet_addr ("192.168.56.1");
 	  pptr += sizeof(struct vlparam_ip);
 	  psize += sizeof(struct vlparam_ip);
 	}
 
-      if (0) // NOT MANDATORY
+      if (1) // NOT MANDATORY
 	{
 	  //vlip3 = (struct vlparam_ip *) ((char *)vlip2 + sizeof(struct vlparam_ip));
 	  vlip3 = (struct vlparam_ip *) pptr;
 	  vlip3->type = VLPARAM_IPV4;
 	  vlip3->length = htons(sizeof(struct vlparam_ip));
-	  vlip3->ipaddr = inet_addr ("127.0.0.1");
+	  vlip3->ipaddr = inet_addr ("192.168.96.12");
 	  pptr += sizeof(struct vlparam_ip);
 	  psize += sizeof(struct vlparam_ip);
 	}
@@ -3017,6 +3035,7 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
 	    psize += sizeof(struct vlparam_ip);
 	  }
 
+      if (0) {
       //vlcookie = (struct vlparam_cookie *) ((char *)vlip3 + sizeof(struct vlparam_ip));
       vlcookie = (struct vlparam_cookie *) pptr;
       vlcookie->type = VLPARAM_COOKIE;
@@ -3045,14 +3064,28 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
       //vlcookie->increment = htonl(100);
       pptr += sizeof(struct vlparam_cookie);
       psize += sizeof(struct vlparam_cookie);
+      }
 
       //vladdrtype = (struct vlparam_supported_addrtype *) ((char *)vlcookie + sizeof(struct vlparam_cookie));
       vladdrtype = (struct vlparam_supported_addrtype *) pptr;
       vladdrtype->type = VLPARAM_ADDRTYPE;
       vladdrtype->length = htons(sizeof(struct vlparam_supported_addrtype));
       vladdrtype->addrtype = htons(0x0005);
-      pptr += sizeof(struct vlparam_supported_addrtype);
-      psize += sizeof(struct vlparam_supported_addrtype);
+      pptr += sizeof(struct vlparam_supported_addrtype) + 2;
+      psize += sizeof(struct vlparam_supported_addrtype) + 2;
+
+      vlecnparam = (struct vlparam_ecn_parameter *) pptr;
+      vlecnparam->type = VLPARAM_ECN;
+      vlecnparam->length = htons(sizeof(struct vlparam_ecn_parameter));
+      pptr += sizeof(struct vlparam_ecn_parameter);
+      psize += sizeof(struct vlparam_ecn_parameter);
+
+      vlfwdtsn = (struct vlparam_fwd_tsn *) pptr;
+      vlfwdtsn->type = VLPARAM_FWD_TSN;
+      vlfwdtsn->length = htons(sizeof(struct vlparam_fwd_tsn));
+      pptr += sizeof(struct vlparam_fwd_tsn);
+      psize += sizeof(struct vlparam_fwd_tsn);
+
 
       if (getenv("DEBUG")) printf("sctph->length = %d\n", psize + 2);
 
@@ -3062,7 +3095,7 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
       // fill in length
       //c_init->length = htons( sizeof (struct chunk_init) + sizeof (struct vlparam_ip) + sizeof (struct vlparam_ip) + sizeof (struct vlparam_ip) + sizeof (struct vlparam_cookie) + sizeof (struct vlparam_supported_addrtype) + 2 );
       //printf ("add %d ?= psize %d\n", sizeof (struct chunk_init) + sizeof (struct vlparam_ip) + sizeof (struct vlparam_ip) + sizeof (struct vlparam_ip) + sizeof (struct vlparam_cookie) + sizeof (struct vlparam_supported_addrtype) + 2, psize + 2);
-      c_init->length = htons( psize + 2 );
+      c_init->length = htons( psize );
       chunk_len = c_init->length;
     }
 
