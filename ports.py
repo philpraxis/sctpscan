@@ -115,4 +115,6 @@ sctp_ports = [1,
              32905,    # m3ua common port
              32931,
              32768,
+             36412,    # S1AP
+             36422,    # X2AP
              ]
