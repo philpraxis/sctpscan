@@ -1983,8 +1983,8 @@ int collab_report(struct app_s *app, char *present_on_ip, int port, char *sctp_c
 	}
       else
 	{
-#ifdef SIGTSTP /* BSD */
-	  setpgrp(0, getpid());
+#ifdef SIGTSTP /* BSD Ubuntu 18.04.1 LTS */
+	  setpgid(0, getpid());
 #else /* Sys V */
 	  setpgrp();
 	  signal(SIGHUP, SIG_IGN);
