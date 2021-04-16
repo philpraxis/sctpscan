@@ -1709,7 +1709,7 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int po
     }
   else
     {
-      fprintf(stderr,"ERROR: Missing remote host or port to bridge to (remote host at %x, remote port=%d.\n", (uint16_t)hostr, portr);
+      fprintf(stderr,"ERROR: Missing remote host or port to bridge to (remote host at %x, remote port=%d.\n", (uint32_t)hostr, portr);
       exit(EXIT_FAILURE);
     }
   
