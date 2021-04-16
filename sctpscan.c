@@ -3328,9 +3328,7 @@ int netscan (int s, char *hostl, char *hostr, short portl, short portr, struct a
         netscan_send(s, hostl, tempt_host, portl, portr, app);
        }
       } else {
-        /* SINGLE HOST */
-        printf(" don't use -s with a single host\r\n");
-        exit(1);
+        netscan_send(s, hostl, hostr, portl, portr, app);
       }
     }
   }
