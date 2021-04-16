@@ -382,7 +382,7 @@
 /* with 24 and 32 Parity Bits",                                  */ 
 /* IEEE Transactions on Communications, Vol.41, No.6, June 1993  */ 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */ 
-unsigned long  crc_c[256] = 
+uint32_t crc_c[256] =
   { 
     0x00000000L, 0xF26B8303L, 0xE13B70F7L, 0x1350F3F4L,  
     0xC79A971FL, 0x35F1141CL, 0x26A1E7E8L, 0xD4CA64EBL,  
@@ -453,9 +453,9 @@ unsigned long  crc_c[256] =
 uint32_t 
 count_crc(uint8_t *buffer, uint16_t length)
 {    
-  unsigned int i;
-  unsigned long crc32 = ~0L; 
-  unsigned long result;
+  uint16_t i;
+  uint32_t crc32 = ~0L;
+  uint32_t result;
   unsigned char byte0, byte1, byte2, byte3;
      
   /* Calculate the CRC. */
