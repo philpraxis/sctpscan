@@ -316,6 +316,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/ioctl.h> 
 
 #include <signal.h>
 
@@ -1709,7 +1710,7 @@ int TCPtoSCTP(int tcp_port, char *hostl, int portl, unsigned char *hostr, int po
     }
   else
     {
-      fprintf(stderr,"ERROR: Missing remote host or port to bridge to (remote host at %lx, remote port=%d.\n", (uint64_t)hostr, portr);
+      fprintf(stderr,"ERROR: Missing remote host or port to bridge to (remote host at %lx, remote port=%d.\n", (unsigned long)hostr, portr);
       exit(EXIT_FAILURE);
     }
   
