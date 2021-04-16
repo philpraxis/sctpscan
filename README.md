@@ -5,8 +5,11 @@ I am modifying the program to support 64 bit architectures and resolve some anno
 
 
 there is a Blackhat talk that also accompanies this program here:
+
 https://www.blackhat.com/presentations/bh-europe-07/Langlois/Whitepaper/bh-eu-07-langlois-WP.pdf
+
 and a HITB talk here:
+
 https://conference.hitb.org/hitbsecconf2013ams/materials/D1T2%20-%20Philippe%20Langlois%20-%20Hacking%20HLR%20HSS%20and%20MME%20Core%20Network%20Elements.pdf
 
 # Is SCTP still relevant?
