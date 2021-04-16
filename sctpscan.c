@@ -231,7 +231,6 @@
 //tcpdump -i eth0 -s 1500 -n ip proto 132 or icmp -w pcapfile.$$
 
 #ifdef __linux__
-#define HAVE_STROPTS_H
 #define USE_GLIB_20_H
 #define HAVE_LINUX_SOCKIOS_H
 #endif
