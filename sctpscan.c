@@ -2726,7 +2726,7 @@ int send_sctp_packet(int s, char *hostl, char *hostr, short portl, short portr, 
 
   memset (datagram, 0, 4096);    /* zero out the buffer */
 
-  if (getenv("DEBUG")) printf("iph=%x, sctph=%x offset between the two=%d\n", (unsigned int)iph, (unsigned int)sctph, (int)sctph - (int)iph); 
+  if (getenv("DEBUG")) printf("iph=%lx, sctph=%lx offset between the two=%ld\n", (unsigned long)iph, (unsigned long)sctph, (long)sctph - (long)iph); 
 
   /* we'll now fill in the ip/tcp header values, see above for explanations */
   iph->ip_hl = 5;
