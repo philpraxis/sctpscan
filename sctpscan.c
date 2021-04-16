@@ -3327,7 +3327,7 @@ int netscan (int s, char *hostl, char *hostr, short portl, short portr, struct a
         sprintf(tempt_host, "%s.%u", hostr, i ); 
         netscan_send(s, hostl, tempt_host, portl, portr, app);
        }
-      } else {
+      } else { /* SINGLE HOST */
         netscan_send(s, hostl, hostr, portl, portr, app);
       }
     }
