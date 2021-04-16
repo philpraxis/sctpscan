@@ -3319,10 +3319,17 @@ int netscan (int s, char *hostl, char *hostr, short portl, short portr, struct a
     //printf("XXX Very tentative, found host %s with get_sending_ip()\n",hostl);
     // end XXX
       }
-    } else { /* CNET */
-      for ( i = 1; i < 255; i++ ) {
-    sprintf(tempt_host, "%s.%u", hostr, i ); 
-    netscan_send(s, hostl, tempt_host, portl, portr, app);
+    } else {
+      pt++;
+      pt=strchr(pt,'.');
+      if (pt==NULL) { /* CNET */
+        for ( i = 1; i < 255; i++ ) {
+        sprintf(tempt_host, "%s.%u", hostr, i ); 
+        netscan_send(s, hostl, tempt_host, portl, portr, app);
+       }
+      } else {
+        /* SINGLE HOST */
+        printf(" don't use -s ");
       }
     }
   }
