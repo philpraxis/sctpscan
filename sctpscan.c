@@ -3330,7 +3330,7 @@ int netscan (int s, char *hostl, char *hostr, short portl, short portr, struct a
       } else {
         /* SINGLE HOST */
         printf(" don't use -s with a single host\r\n");
-        exit(0);
+        exit(1);
       }
     }
   }
